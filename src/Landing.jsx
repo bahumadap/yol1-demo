@@ -196,17 +196,6 @@ export default function Landing({ onDemo, onPersonas }) {
         </div>
       </section>
 
-      <div className="trust-strip">
-        <span className="trust-strip-label">Confiado por</span>
-        <div className="trust-strip-items">
-          <div className="trust-strip-item"><b>ProntoPaga</b><span>Partner transaccional</span></div>
-          <div className="trust-strip-item"><b>Banco BICE</b><span>Banco operativo</span></div>
-          <div className="trust-strip-item"><b>18.420+</b><span>Cuentas virtuales activas</span></div>
-          <div className="trust-strip-item"><b>$845M CLP</b><span>Administrados</span></div>
-          <div className="trust-strip-item"><b>98,2%</b><span>Conciliacion diaria</span></div>
-        </div>
-      </div>
-
       <section className="site-section intro-section" id="what-is-yol1">
         <SectionHeader eyebrow="Que es Yol1" title="Una plataforma financiera Business-first" subtitle="Yol1 construye una base comun para cuentas, pagos y datos financieros, y la convierte en productos para empresas, pymes y personas conectadas."/>
         <div className="intro-grid">

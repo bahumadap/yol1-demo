@@ -357,51 +357,6 @@
 }
 
 /* ── Trust / social-proof strip ─────────────────────────────────────────── */
-.trust-strip {
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  padding: 20px max(var(--px), calc((100% - var(--max-w)) / 2));
-  display: flex;
-  align-items: center;
-  gap: 36px;
-  overflow: auto;
-}
-
-.trust-strip-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink-light);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.trust-strip-items {
-  display: flex;
-  gap: 32px;
-  align-items: center;
-}
-
-.trust-strip-item {
-  display: flex;
-  flex-direction: column;
-  white-space: nowrap;
-}
-
-.trust-strip-item b {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--ink);
-  letter-spacing: -0.2px;
-}
-
-.trust-strip-item span {
-  font-size: 12px;
-  color: var(--ink-muted);
-  margin-top: 1px;
-}
-
 /* ── Common sections ─────────────────────────────────────────────────────── */
 .site-section,
 .detail-section {
@@ -826,8 +781,6 @@
   .how-grid,
   .use-case-grid { grid-template-columns: 1fr; }
   .product-card  { min-height: auto; }
-  .trust-strip   { gap: 20px; }
-  .trust-strip-items { gap: 20px; }
 }
 
 @media (max-width: 480px) {
