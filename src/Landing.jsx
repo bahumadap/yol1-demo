@@ -59,7 +59,7 @@ const enterpriseUseCases = [
   'Retail con sucursales',
 ]
 
-const smbsBase = ['Cuenta empresa', 'Subcuentas', 'Pagos', 'Transferencias', 'Dashboard', 'Conciliacion basica', 'Tarjetas', 'Facturacion', 'Cobranza', 'Reportes']
+const smbsBase = ['Cuenta empresa', 'Subcuentas', 'Pagos', 'Transferencias', 'Dashboard', 'Conciliacion basica', 'Tarjetas', 'Facturacion', 'Cobranza', 'Rendicion de gastos', 'Reportes']
 const smbModules = ['FX', 'Tarjetas adicionales', 'Usuarios adicionales', 'Automatizaciones', 'Conciliacion avanzada', 'API premium', 'Financiamiento futuro']
 const personasSolutions = ['Cuenta personal', 'Wallet', 'Tarjeta', 'Pagos', 'Remesas', 'Beneficios', 'Credito futuro', 'Inversiones futuras']
 const personasExamples = ['Universidad -> alumno', 'Empresa -> empleado', 'Marketplace -> seller', 'Plataforma -> beneficiario', 'Partner -> usuario final']
@@ -67,7 +67,7 @@ const personasExamples = ['Universidad -> alumno', 'Empresa -> empleado', 'Marke
 const useCases = [
   ['Enterprise / XTransfer via ProntoPaga', 'ProntoPaga opera la relacion comercial; Yol1 habilita cuentas, nodos, conciliacion, FX y salida internacional.'],
   ['Universidad', 'Cuenta madre institucional, cuentas nominales para alumnos, pagos, becas y devoluciones trazables.'],
-  ['SMB', 'Cuenta empresa, subcuentas, pagos, tarjetas, facturacion, cobranza y conciliacion basica.'],
+  ['SMB', 'Cuenta empresa, subcuentas, pagos, tarjetas, facturacion, cobranza, rendicion de gastos y conciliacion basica.'],
   ['Marketplace', 'Cuentas para sellers, recaudacion, conciliacion y liquidacion por operacion.'],
   ['Personas downstream', 'Usuarios activados desde Business con cuenta, wallet, tarjeta y remesas.'],
 ]
@@ -122,7 +122,7 @@ function NavDropdown({ label, children }) {
   )
 }
 
-export default function Landing({ onDemo, onPersonas }) {
+export default function Landing({ onDemo, onPersonas, onPersonasWeb }) {
   useScrollReveal()
   const scrollTo = id => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
 
@@ -158,10 +158,15 @@ export default function Landing({ onDemo, onPersonas }) {
             <Smartphone size={15}/>
             <span><b>Demo Personas</b><small>App neobanco personal</small></span>
           </button>
+          <button className="dd-item" onClick={onPersonasWeb}>
+            <LayoutDashboard size={15}/>
+            <span><b>Demo Personas Web</b><small>Panel Personas en formato Business</small></span>
+          </button>
         </NavDropdown>
       </nav>
-      <div style={{display:'flex',gap:'8px'}}>
+      <div style={{display:'flex',gap:'8px',flexWrap:'wrap',justifyContent:'flex-end'}}>
         <LandingButton secondary icon={Smartphone} onClick={onPersonas}>Demo Personas</LandingButton>
+        <LandingButton secondary icon={LayoutDashboard} onClick={onPersonasWeb}>Personas Web</LandingButton>
         <LandingButton icon={LayoutDashboard} onClick={onDemo}>Demo SMB</LandingButton>
       </div>
     </header>
@@ -243,6 +248,7 @@ export default function Landing({ onDemo, onPersonas }) {
               <LandingButton secondary icon={ArrowRight} onClick={id === 'smb' ? onDemo : ()=>scrollTo(`${id}-detail`)}>{cta}</LandingButton>
               {id === 'smb' && <LandingButton icon={LayoutDashboard} onClick={onDemo}>Ver demo SMB</LandingButton>}
       {id === 'personas' && <LandingButton icon={Smartphone} onClick={onPersonas}>Ver demo Personas</LandingButton>}
+      {id === 'personas' && <LandingButton icon={LayoutDashboard} onClick={onPersonasWeb}>Ver panel web</LandingButton>}
             </div>
           </article>)}
         </div>
@@ -288,7 +294,10 @@ export default function Landing({ onDemo, onPersonas }) {
         <div>
           <SectionHeader eyebrow="Yol1 Personas" title="La cuenta personal que nace desde relaciones Business."/>
           <p className="detail-copy">Yol1 Personas no parte como una wallet masiva desde cero. Se activa cuando una empresa, universidad, marketplace o partner crea una relacion financiera con una persona.</p>
-          <LandingButton icon={ArrowRight} onClick={onPersonas}>Ver demo Personas</LandingButton>
+          <div className="landing-actions">
+            <LandingButton icon={ArrowRight} onClick={onPersonas}>Ver demo Personas</LandingButton>
+            <LandingButton secondary icon={LayoutDashboard} onClick={onPersonasWeb}>Ver panel web</LandingButton>
+          </div>
         </div>
         <div className="detail-panels">
           <article><h3>Soluciones</h3><ChipList items={personasSolutions}/></article>

@@ -4,6 +4,7 @@ import yol1Logo from './assets/yol1-logo.svg'
 import yol1Mark from './assets/yol1-mark.svg'
 import Landing from './Landing'
 import Personas from './Personas'
+import PersonasBusiness from './PersonasBusiness'
 import {
   Activity, AlertCircle, ArrowDownLeft, ArrowRight, ArrowUpRight, BarChart3,
   Bell, Building2, Check, CheckCircle2, ChevronDown, ChevronRight, CircleDollarSign,
@@ -11,7 +12,7 @@ import {
   Layers3, LayoutDashboard, Link2, ListFilter, LockKeyhole, Menu, MoreHorizontal,
   Plus, ReceiptText, Search, Settings, ShieldCheck, Sparkles, Users, WalletCards,
   X, Zap, ArrowLeftRight, Globe2, Send, Repeat2, FileText, Mail, ScanLine,
-  CalendarClock, UserPlus, Camera, Paperclip, Pause, Play
+  CalendarClock, UserPlus, Camera, Paperclip, Pause, Play, Receipt
 } from 'lucide-react'
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart,
@@ -53,7 +54,7 @@ const movements = [
 const nav = [
   ['Vista general', LayoutDashboard], ['Cuentas virtuales', Layers3], ['Usuarios finales', Users],
   ['Movimientos', Activity], ['Transferencias', ArrowLeftRight], ['Retiros y pagos', CircleDollarSign], ['Conciliación', ClipboardCheck],
-  ['Facturación', FileText], ['Tarjetas', CreditCard], ['Reportes', BarChart3], ['Usuarios y permisos', ShieldCheck],
+  ['Facturación', FileText], ['Rendición de gastos', Receipt], ['Tarjetas', CreditCard], ['Reportes', BarChart3], ['Usuarios y permisos', ShieldCheck],
   ['Integraciones', Link2], ['Configuración', Settings],
 ]
 
@@ -96,7 +97,7 @@ function Timeline({ compact = false }) {
 function Modal({ type, onClose, onConfirm }) {
   const transferType = type?.startsWith('transfer-')
   const billingType = type?.startsWith('billing-')
-  const title = type === 'create' ? 'Crear cuenta virtual' : type === 'trace' ? 'Trazabilidad de operación' : type === 'withdraw' ? 'Aprobar retiro' : type === 'card' ? 'Crear tarjeta' : type === 'transfer-national' ? 'Transferencia nacional' : type === 'transfer-global' ? 'Transferencia internacional' : type === 'transfer-fx' ? 'Cambiar divisas' : type === 'billing-client' ? 'Nuevo cliente' : type === 'billing-invoice' ? 'Nueva factura' : type === 'billing-supplier' ? 'Importar factura de proveedor' : type === 'billing-pay' ? 'Programar pago' : type === 'billing-email' ? 'Enviar factura por correo' : type === 'billing-recurring' ? 'Nueva factura recurrente' : 'Adjuntar ticket'
+  const title = type === 'create' ? 'Crear cuenta virtual' : type === 'trace' ? 'Trazabilidad de operación' : type === 'withdraw' ? 'Aprobar retiro' : type === 'card' ? 'Crear tarjeta' : type === 'transfer-national' ? 'Transferencia nacional' : type === 'transfer-global' ? 'Transferencia internacional' : type === 'transfer-fx' ? 'Cambiar divisas' : type === 'billing-client' ? 'Nuevo cliente' : type === 'billing-invoice' ? 'Nueva factura' : type === 'billing-supplier' ? 'Importar factura de proveedor' : type === 'billing-pay' ? 'Programar pago' : type === 'billing-email' ? 'Enviar factura por correo' : type === 'billing-recurring' ? 'Nueva factura recurrente' : type === 'expense-new' ? 'Nueva rendición de gastos' : type === 'expense-detail' ? 'Detalle de rendición · RG-1042' : 'Adjuntar ticket'
   return <div className="modal-backdrop" onMouseDown={onClose}><div className="modal" onMouseDown={e => e.stopPropagation()}>
     <div className="modal-head"><div><span className="eyebrow">Yol1 Business</span><h2>{title}</h2></div><button onClick={onClose}><X size={20} /></button></div>
     {type === 'create' && <div className="form-grid"><label>Nombre de cuenta<input placeholder="Ej. CV Proyecto Norte" /></label><label>Tipo de cuenta<select><option>Usuario final</option><option>Operativa</option><option>Proyecto</option></select></label><label>Moneda<select><option>CLP</option><option>USD</option><option>EUR</option></select></label><label>Usuario o proyecto asociado<input placeholder="Buscar usuario o proyecto" /></label><label className="wide">Estado inicial<select><option>Activa</option><option>Pendiente revisión</option></select></label></div>}
@@ -113,7 +114,31 @@ function Modal({ type, onClose, onConfirm }) {
     {type === 'billing-email' && <div className="billing-modal"><div className="form-grid billing-fields"><label>Para<input defaultValue="pagos@andes.cl"/></label><label>Factura<input defaultValue="F-2026-041 · $8.500.000"/></label><label className="wide">Asunto<input defaultValue="Factura ArenaPlay Demo SpA · Junio 2026"/></label><label className="wide">Mensaje<textarea defaultValue="Hola, adjuntamos la factura correspondiente a los servicios de junio. Puedes pagar usando los datos incluidos en el documento."/></label></div><div className="email-attachment"><FileText size={18}/><span><b>F-2026-041.pdf</b><small>Factura personalizada con logo Yol1 · 184 KB</small></span><CheckCircle2 size={16}/></div></div>}
     {type === 'billing-recurring' && <div className="billing-modal"><div className="recurring-modal-intro"><Repeat2 size={22}/><span><b>Automatiza una factura para un cliente</b><small>Yol1 creará el borrador y lo enviará automáticamente en cada ciclo.</small></span></div><div className="form-grid billing-fields"><label>Cliente<select><option>Constructora Andes SpA</option><option>Operaciones Norte SpA</option><option>Servicios Lima SAC</option></select></label><label>Frecuencia<select><option>Cada 1 mes</option><option>Cada 2 meses</option><option>Cada 3 meses</option><option>Cada 6 meses</option><option>Cada 12 meses</option></select></label><label>Primera emisión<input defaultValue="01-07-2026"/></label><label>Finalización<select><option>Sin fecha de término</option><option>Después de 6 emisiones</option><option>Después de 12 emisiones</option></select></label><label className="wide">Concepto<input defaultValue="Servicio plataforma digital mensual"/></label><label>Monto<input defaultValue="$ 8.500.000 CLP"/></label><label>Envío<select><option>Crear y enviar automáticamente</option><option>Crear como borrador</option></select></label></div></div>}
     {type === 'billing-receipt' && <div className="billing-modal"><div className="ocr-drop"><Camera size={26}/><b>Ticket leído correctamente</b><small>Foto mockeada · gasto tarjeta Operaciones</small></div><div className="ocr-results"><span><small>Comercio</small><b>Hotel Plaza</b></span><span><small>Total</small><b>$184.900</b></span><span><small>IVA</small><b>$29.522</b></span><span><small>Matching</small><b>Movimiento encontrado</b></span></div></div>}
-    <div className="modal-footer"><Button secondary onClick={onClose}>Cancelar</Button><Button onClick={() => { onConfirm?.(); onClose() }}>{type === 'trace' ? 'Cerrar' : type === 'withdraw' ? 'Aprobar retiro' : transferType ? 'Confirmar operación' : type === 'billing-pay' ? 'Programar pago' : type === 'billing-receipt' ? 'Vincular ticket' : type === 'billing-email' ? 'Enviar correo' : billingType ? 'Guardar' : 'Crear'}</Button></div>
+    {type === 'expense-new' && <div className="billing-modal expense-new-modal">
+      <div className="form-grid">
+        <label>Nombre de la rendición<input defaultValue="Viaje comercial Santiago"/></label>
+        <label>Centro de costo<select><option>Ventas</option><option>Marketing</option><option>Operaciones</option><option>Dirección</option></select></label>
+        <label>Periodo<input defaultValue="05-09 jun 2026"/></label>
+        <label>Moneda<select><option>CLP</option><option>USD</option></select></label>
+      </div>
+      <div className="ocr-drop"><Camera size={26}/><b>Adjunta las boletas del gasto</b><small>OCR simulado · extrae comercio, monto y categoría automáticamente</small></div>
+      <div className="expense-line-items">
+        <div className="expense-line-item"><Receipt size={14}/><div><b>Hotel Director Vitacura</b><small>Alojamiento · 05 jun</small></div><span className="policy-flag"><AlertCircle size={11}/> Excede límite</span><b>$96.000</b></div>
+        <div className="expense-line-item"><Receipt size={14}/><div><b>Uber</b><small>Transporte · 04 jun</small></div><span className="match-pill"><Check size={11}/> OK</span><b>$8.500</b></div>
+        <button type="button" className="expense-add-line"><Plus size={13}/> Agregar gasto manual</button>
+      </div>
+    </div>}
+    {type === 'expense-detail' && <div className="billing-modal expense-detail-modal">
+      <div className="trace-summary expense-summary">
+        <div><small>Empleado</small><strong>Felipe Torres</strong><span>Ventas · Hoy, 09:12</span></div>
+        <div><small>Rendición</small><strong>RG-1042 · 8 ítems</strong><span>01–05 jun 2026</span></div>
+        <div><small>Total</small><strong>$284.500</strong><StatusBadge>Enviada</StatusBadge></div>
+      </div>
+      <div className="expense-line-items">
+        {expenseItems.map((it,i)=><div className="expense-line-item" key={i}><Receipt size={14}/><div><b>{it.merchant}</b><small>{it.category} · {it.date}</small></div>{it.alert?<span className="policy-flag"><AlertCircle size={11}/> Excede límite</span>:<span className="match-pill"><Check size={11}/> OK</span>}<b>{money(it.amount)}</b></div>)}
+      </div>
+    </div>}
+    <div className="modal-footer"><Button secondary onClick={onClose}>Cancelar</Button><Button onClick={() => { onConfirm?.(); onClose() }}>{type === 'trace' ? 'Cerrar' : type === 'withdraw' ? 'Aprobar retiro' : transferType ? 'Confirmar operación' : type === 'billing-pay' ? 'Programar pago' : type === 'billing-receipt' ? 'Vincular ticket' : type === 'billing-email' ? 'Enviar correo' : type === 'expense-new' ? 'Enviar a aprobación' : type === 'expense-detail' ? 'Aprobar rendición' : billingType ? 'Guardar' : 'Crear'}</Button></div>
   </div></div>
 }
 
@@ -212,6 +237,55 @@ function Billing({open}) {
     {tab==='Recurrentes'&&<><div className="recurring-hero"><div className="recurring-hero-icon"><Repeat2 size={24}/></div><div><b>Facturación automática para ingresos predecibles</b><span>Programa la creación y envío de facturas cada 1, 2, 3, 6 o 12 meses.</span></div><Button icon={Plus} onClick={()=>open('billing-recurring')}>Nueva recurrente</Button></div><div className="metric-grid four"><MetricCard label="Automatizaciones activas" value="2" icon={Repeat2} detail="1 pausada"/><MetricCard label="Próxima emisión" value="01 jul" icon={CalendarClock} detail="Constructora Andes"/><MetricCard label="Ingreso programado" value="$12,8M" icon={CircleDollarSign} detail="Próximos 30 días" tone="blue"/><MetricCard label="Facturas emitidas" value="11" icon={CheckCircle2} detail="Sin errores este año"/></div><Card title="Facturas recurrentes" subtitle="Automatizaciones de cobro a clientes" action={<button className="text-action" onClick={()=>open('billing-recurring')}>Crear automatización <Plus size={14}/></button>}><DataTable headers={['Automatización','Cliente / concepto','Frecuencia','Próxima emisión','Importe','Historial','Estado','Acción']}>{recurring.map(x=><tr key={x.id}><td><code>{x.id}</code></td><td><div className="person"><Avatar name={x.name} small/><span><b>{x.name}</b><small>{x.concept}</small></span></div></td><td><span className="recurring-frequency"><Repeat2 size={11}/>{x.frequency}</span></td><td><b>{x.next}</b></td><td><b>{x.amount}</b></td><td>{x.sent}</td><td><StatusBadge>{x.status}</StatusBadge></td><td><button className={`table-action recurring-toggle ${x.status==='Pausada'?'resume':''}`} onClick={()=>toggleRecurring(x.id)}>{x.status==='Activa'?<><Pause size={11}/> Pausar</>:<><Play size={11}/> Reactivar</>}</button></td></tr>)}</DataTable></Card><div className="concept-note"><Sparkles size={20}/><div><strong>Un flujo simple y completamente mockeado.</strong><p>En cada fecha programada, Yol1 simula la creación de la factura, aplica el IVA configurado y la envía al correo de facturación del cliente.</p></div></div></>}
   </>
 }
+const expenseCategories=[
+  {name:'Alojamiento',limit:80000,unit:'Por noche'},
+  {name:'Alimentación',limit:15000,unit:'Por día'},
+  {name:'Transporte',limit:20000,unit:'Por trayecto'},
+  {name:'Combustible',limit:30000,unit:'Por carga'},
+  {name:'Otros',limit:null,unit:'Sujeto a revisión'},
+]
+const expenseReports=[
+  {id:'RG-1042',employee:'Felipe Torres',costCenter:'Ventas',period:'01–05 jun 2026',items:8,total:284500,status:'Enviada',alert:true,date:'Hoy, 09:12'},
+  {id:'RG-1041',employee:'Camila Rojas',costCenter:'Marketing',period:'27–31 may 2026',items:5,total:162300,status:'Aprobada',alert:false,date:'Ayer, 17:40'},
+  {id:'RG-1040',employee:'Valentina Soto',costCenter:'Ventas',period:'20–22 may 2026',items:4,total:210000,status:'Enviada',alert:true,date:'Ayer, 12:15'},
+  {id:'RG-1039',employee:'Diego Pérez',costCenter:'Operaciones',period:'24–26 may 2026',items:3,total:94800,status:'Pagada',alert:false,date:'Lun, 11:05'},
+  {id:'RG-1035',employee:'Benja',costCenter:'Dirección',period:'12–16 may 2026',items:6,total:458200,status:'Pagada',alert:false,date:'13 may'},
+  {id:'RG-1033',employee:'Camila Rojas',costCenter:'Marketing',period:'05–08 may 2026',items:2,total:38200,status:'Rechazada',alert:true,date:'06 may'},
+]
+const expenseItems=[
+  {date:'05 jun',category:'Alojamiento',merchant:'Hotel Director Vitacura',amount:96000,alert:true},
+  {date:'05 jun',category:'Alimentación',merchant:'Restaurante Boragó',amount:32000,alert:true},
+  {date:'04 jun',category:'Transporte',merchant:'Uber',amount:8500,alert:false},
+  {date:'04 jun',category:'Alimentación',merchant:'Café Melba',amount:6200,alert:false},
+  {date:'03 jun',category:'Combustible',merchant:'Copec Ruta 5',amount:45000,alert:false},
+  {date:'02 jun',category:'Transporte',merchant:'Uber',amount:7200,alert:false},
+  {date:'02 jun',category:'Alimentación',merchant:'Emporio Rústico',amount:14400,alert:false},
+  {date:'01 jun',category:'Otros',merchant:'Estacionamiento Costanera',amount:5200,alert:false},
+]
+function ExpenseReports({open}) {
+  const [tab,setTab]=useState('Por aprobar')
+  const [rows,setRows]=useState(expenseReports)
+  const change=(id,status)=>setRows(r=>r.map(x=>x.id===id?{...x,status}:x))
+  const pending=rows.filter(r=>r.status==='Enviada')
+  const pendingTotal=pending.reduce((s,r)=>s+r.total,0)
+  const approvedMonth=rows.filter(r=>r.status==='Aprobada'||r.status==='Pagada').reduce((s,r)=>s+r.total,0)
+  const paidMonth=rows.filter(r=>r.status==='Pagada').reduce((s,r)=>s+r.total,0)
+  const tabs=['Por aprobar','Todas las rendiciones','Políticas de gasto']
+  return <><PageTitle eyebrow="Reembolso a empleados" title="Rendición de gastos" subtitle="Recibe, revisa y aprueba los gastos que tu equipo rinde en viajes y operación diaria." actions={<><Button secondary icon={Download}>Exportar</Button><Button icon={Plus} onClick={()=>open('expense-new')}>Nueva rendición</Button></>}/>
+    {pending.some(r=>r.alert)&&<div className="billing-inbox expense-alert-inbox"><AlertCircle size={19}/><div><b>Hay rendiciones que exceden la política de gastos</b><span>Revisa los ítems marcados antes de aprobar.</span></div><StatusBadge>Requiere revisión</StatusBadge></div>}
+    <div className="metric-grid four">
+      <MetricCard label="Por aprobar" value={money(pendingTotal)} icon={Receipt} detail={`${pending.length} rendición${pending.length===1?'':'es'} pendiente${pending.length===1?'':'s'}`} tone="amber"/>
+      <MetricCard label="Aprobado este mes" value={money(approvedMonth)} icon={CheckCircle2} detail="+9,2% vs. mes anterior"/>
+      <MetricCard label="Reembolsado este mes" value={money(paidMonth)} icon={CircleDollarSign} detail="2 pagos ejecutados" tone="blue"/>
+      <MetricCard label="Tiempo promedio aprobación" value="1d 4h" icon={Activity} detail="Dentro del SLA interno"/>
+    </div>
+    <div className="billing-tabs">{tabs.map(t=><button key={t} className={tab===t?'active':''} onClick={()=>setTab(t)}>{t}{t==='Por aprobar'&&<em>{pending.length}</em>}</button>)}</div>
+    {tab==='Por aprobar'&&<Card title="Rendiciones pendientes de aprobación" subtitle="Acciones visuales de demo · no ejecutan pagos reales"><SearchFilters/><DataTable headers={['Rendición','Empleado','Centro de costo','Periodo','Ítems','Monto','Política','Acciones']}>{pending.map(r=><tr key={r.id}><td><code>{r.id}</code></td><td><div className="person"><Avatar name={r.employee} small/><b>{r.employee}</b></div></td><td>{r.costCenter}</td><td className="muted">{r.period}</td><td>{r.items}</td><td><b>{money(r.total)}</b></td><td>{r.alert?<span className="policy-flag"><AlertCircle size={11}/> Excede límite</span>:<span className="match-pill"><Check size={11}/> Dentro de política</span>}</td><td><div className="row-actions"><button className="approve" onClick={()=>change(r.id,'Aprobada')}><Check size={14}/> Aprobar</button><button className="reject" onClick={()=>change(r.id,'Rechazada')}><X size={14}/></button><button onClick={()=>open('expense-detail')}>Ver detalle</button></div></td></tr>)}</DataTable>{pending.length===0&&<div className="empty-state">Todas las rendiciones están al día. No hay nada pendiente de aprobación.</div>}</Card>}
+    {tab==='Todas las rendiciones'&&<Card title="Historial de rendiciones" subtitle="Todas las rendiciones enviadas por el equipo"><SearchFilters/><DataTable headers={['Rendición','Empleado','Centro de costo','Periodo','Ítems','Monto','Estado','']}>{rows.map(r=><tr key={r.id}><td><code>{r.id}</code></td><td><div className="person"><Avatar name={r.employee} small/><b>{r.employee}</b></div></td><td>{r.costCenter}</td><td className="muted">{r.period}</td><td>{r.items}</td><td><b>{money(r.total)}</b></td><td><StatusBadge>{r.status}</StatusBadge></td><td><button className="more" onClick={()=>open('expense-detail')}><MoreHorizontal size={18}/></button></td></tr>)}</DataTable></Card>}
+    {tab==='Políticas de gasto'&&<Card title="Políticas de gasto" subtitle="Límites por categoría, validados automáticamente al momento de rendir cada gasto"><DataTable headers={['Categoría','Límite','Aplicación','Estado']}>{expenseCategories.map(c=><tr key={c.name}><td><b>{c.name}</b></td><td>{c.limit?money(c.limit):'Sin límite fijo'}</td><td className="muted">{c.unit}</td><td><StatusBadge>Activa</StatusBadge></td></tr>)}</DataTable></Card>}
+    <div className="concept-note"><Receipt size={20}/><div><strong>De la boleta al reembolso, en un solo flujo.</strong><p>Cada gasto se fotografía, se extraen comercio, monto y fecha automáticamente (OCR simulado), se valida contra la política de la empresa y queda listo para aprobación y pago.</p></div></div>
+  </>
+}
 const cardItems=[['Tarjeta Operaciones','Física','CV Proveedores','$12.000.000','$4.280.400','Activa','Felipe Torres'],['Tarjeta Retiros','Virtual','CV Retiros','$20.000.000','$8.620.000','Activa','Benja'],['Tarjeta Marketing','Virtual','CV Marketing','$8.000.000','$5.120.000','Activa','Camila Rojas'],['Tarjeta Proyecto USD','Virtual','CV Proyecto USD','USD 15.000','USD 2.840','Próximamente','Felipe Torres']]
 function CardsView({open}) { return <><PageTitle eyebrow="Capa futura" title="Tarjetas" subtitle="Extensiones operativas asociadas a cuentas virtuales." actions={<Button icon={Plus} onClick={()=>open('card')}>Crear tarjeta</Button>}/><div className="concept-note"><CreditCard size={20}/><div><strong>Las tarjetas son una extensión operativa.</strong><p>Se construyen sobre las cuentas virtuales y no son el producto principal de Yol1 Business.</p></div></div><div className="cards-grid">{cardItems.map((c,i)=><div className={`payment-card pc${i}`} key={c[0]}><div className="pc-top"><span>Yol1 <b>Business</b></span><Zap size={19}/></div><small>{c[1]} · {c[2]}</small><h3>{c[0]}</h3><div className="pc-number">•••• &nbsp;•••• &nbsp;•••• &nbsp;{4192+i*117}</div><div className="pc-spend"><span><small>Gasto del mes</small><b>{c[4]}</b></span><span><small>Límite mensual</small><b>{c[3]}</b></span></div><div className="pc-bottom"><StatusBadge>{c[5]}</StatusBadge><span>{c[6]}</span></div></div>)}</div></> }
 function Reports() { const pie=[{name:'Usuarios finales',value:340,color:'#80EF0C'},{name:'Recaudación',value:275,color:'#112E3C'},{name:'Operación',value:129,color:'#00D4AF'},{name:'Conciliación',value:101,color:'#A2A682'}];return <><PageTitle eyebrow="Inteligencia financiera" title="Reportes" subtitle="Una vista ejecutiva del desempeño de todas tus cuentas." actions={<Button icon={Download} onClick={()=>alert('Demo conceptual: el reporte no se descarga realmente.')}>Exportar reporte</Button>}/><div className="filters report-filters"><button><Filter size={15}/> Todas las cuentas <ChevronDown size={14}/></button><button>Últimos 6 meses <ChevronDown size={14}/></button><button>CLP <ChevronDown size={14}/></button></div><div className="two-col"><Card title="Entradas vs. salidas" subtitle="MM CLP por mes"><div className="chart"><ResponsiveContainer><BarChart data={chartData}><CartesianGrid stroke="#e5e2d8" vertical={false}/><XAxis dataKey="name" axisLine={false} tickLine={false}/><YAxis axisLine={false} tickLine={false}/><Tooltip/><Bar dataKey="entradas" fill="#80EF0C" radius={[5,5,0,0]}/><Bar dataKey="salidas" fill="#112E3C" radius={[5,5,0,0]}/></BarChart></ResponsiveContainer></div></Card><Card title="Saldo por tipo de cuenta" subtitle="Distribución consolidada"><div className="pie-chart"><ResponsiveContainer><PieChart><Pie data={pie} innerRadius={65} outerRadius={95} dataKey="value">{pie.map(x=><Cell key={x.name} fill={x.color}/>)}</Pie><Tooltip/></PieChart></ResponsiveContainer><div className="pie-legend">{pie.map(x=><span key={x.name}><i style={{background:x.color}}/>{x.name}<b>${x.value}M</b></span>)}</div></div></Card></div><div className="metric-grid four"><MetricCard label="Top usuario por saldo" value="$4,8M" icon={Users} detail="Valentina Soto"/><MetricCard label="Retiros aprobados" value="91,4%" icon={CheckCircle2} detail="+2,1 pts este mes"/><MetricCard label="Pendiente por conciliar" value="$4,8M" icon={ClipboardCheck} detail="1,8% del flujo" tone="amber"/><MetricCard label="Eficiencia operativa" value="94/100" icon={Activity} detail="+6 pts este mes" tone="blue"/></div></> }
@@ -220,21 +294,22 @@ const integrations=[['ProntoPaga','Infraestructura transaccional','Conectado','P
 function Integrations(){return <><PageTitle eyebrow="Ecosistema conectado" title="Integraciones" subtitle="Infraestructura que habilita la operación visible de Yol1 Business." actions={<Button secondary icon={ReceiptText}>Documentación API</Button>}/><div className="integration-highlight"><div className="yol1-orbit">Yol1 <b>Business</b></div><p>El producto visible para empresas</p><div className="orbit-lines"><span>Infraestructura</span><span>Cuentas</span><span>Tarjetas futuras</span></div></div><div className="integration-grid">{integrations.map((x,i)=><Card key={x[0]} className="integration-card"><div className={`integration-logo il${i}`}>{x[3]}</div><h3>{x[0]}</h3><p>{x[1]}</p><StatusBadge>{x[2]}</StatusBadge><button className="text-action">Ver detalle <ArrowRight size={14}/></button></Card>)}</div></>}
 function SettingsView(){const items=[[Building2,'Datos de empresa','Razón social, RUT e información corporativa'],[ReceiptText,'Documentación','Documentos legales y operativos'],[ShieldCheck,'Seguridad','Autenticación y políticas de acceso'],[Activity,'Límites operativos','Montos y reglas de operación'],[ClipboardCheck,'Auditoría','Registro de eventos y acciones'],[CircleDollarSign,'Preferencias de moneda','CLP principal, USD y EUR'],[Landmark,'Cuentas vinculadas','Banco BICE · cuenta terminada en 0182']];return <><PageTitle eyebrow="Administración" title="Configuración" subtitle="Preferencias y controles de ArenaPlay Demo SpA."/><div className="settings-grid">{items.map(([Icon,title,sub])=><button key={title} className="settings-item"><span><Icon size={19}/></span><div><b>{title}</b><small>{sub}</small></div><ChevronRight size={18}/></button>)}</div></>}
 
-function Sidebar({active,setActive,mobile,setMobile}) { return <aside className={`sidebar ${mobile?'mobile-open':''}`}><div className="brand"><img src={yol1Logo} alt="Yol1 Business"/><button className="mobile-close" onClick={()=>setMobile(false)}><X/></button></div><div className="company-switch"><div className="company-icon">AP</div><div><b>ArenaPlay Demo SpA</b><span>Cuenta empresa · CLP</span></div><ChevronDown size={15}/></div><nav><span className="nav-label">OPERACIÓN</span>{nav.slice(0,10).map(([name,Icon])=><button key={name} className={active===name?'active':''} onClick={()=>{setActive(name);setMobile(false)}}><Icon size={17}/><span>{name}</span>{name==='Retiros y pagos'&&<em>4</em>}{name==='Conciliación'&&<em>12</em>}</button>)}<span className="nav-label">ADMINISTRACIÓN</span>{nav.slice(10).map(([name,Icon])=><button key={name} className={active===name?'active':''} onClick={()=>{setActive(name);setMobile(false)}}><Icon size={17}/><span>{name}</span></button>)}</nav><div className="sidebar-footer"><div className="demo-tag"><Sparkles size={15}/><span><b>Demo conceptual</b><small>No procesa datos reales</small></span></div><div className="profile"><Avatar name="Benja" small/><div><b>Benja</b><span>Administrador</span></div><MoreHorizontal size={17}/></div></div></aside> }
+function Sidebar({active,setActive,mobile,setMobile}) { return <aside className={`sidebar ${mobile?'mobile-open':''}`}><div className="brand"><img src={yol1Logo} alt="Yol1 Business"/><button className="mobile-close" onClick={()=>setMobile(false)}><X/></button></div><div className="company-switch"><div className="company-icon">AP</div><div><b>ArenaPlay Demo SpA</b><span>Cuenta empresa · CLP</span></div><ChevronDown size={15}/></div><nav><span className="nav-label">OPERACIÓN</span>{nav.slice(0,11).map(([name,Icon])=><button key={name} className={active===name?'active':''} onClick={()=>{setActive(name);setMobile(false)}}><Icon size={17}/><span>{name}</span>{name==='Retiros y pagos'&&<em>4</em>}{name==='Conciliación'&&<em>12</em>}{name==='Rendición de gastos'&&<em>2</em>}</button>)}<span className="nav-label">ADMINISTRACIÓN</span>{nav.slice(11).map(([name,Icon])=><button key={name} className={active===name?'active':''} onClick={()=>{setActive(name);setMobile(false)}}><Icon size={17}/><span>{name}</span></button>)}</nav><div className="sidebar-footer"><div className="demo-tag"><Sparkles size={15}/><span><b>Demo conceptual</b><small>No procesa datos reales</small></span></div><div className="profile"><Avatar name="Benja" small/><div><b>Benja</b><span>Administrador</span></div><MoreHorizontal size={17}/></div></div></aside> }
 function Header({setMobile,onLanding}) { return <header><button className="menu-btn" onClick={()=>setMobile(true)}><Menu/></button><div className="global-search"><Search size={17}/><span>Buscar transacciones o iniciar una acción</span><kbd>⌘ K</kbd></div><div className="header-right"><button className="demo-back" onClick={onLanding}>Yol1 Landing</button><div className="system-ok"><span/> Sistemas operativos</div><button className="icon-btn"><Bell size={18}/><i/></button><Avatar name="Benja" small/></div></header> }
 function SMBDemo() {
   const navigate = useNavigate()
   const [active,setActive]=useState('Vista general'), [modal,setModal]=useState(null), [mobile,setMobile]=useState(false)
   const props={open:setModal,navigate:setActive}
-  const views={'Vista general':<Overview {...props}/>, 'Cuentas virtuales':<VirtualAccounts {...props}/>, 'Usuarios finales':<UsersView {...props}/>, 'Movimientos':<MovementsView {...props}/>, 'Transferencias':<Transfers {...props}/>, 'Retiros y pagos':<Withdrawals {...props}/>, 'Conciliación':<Reconciliation {...props}/>, 'Facturación':<Billing {...props}/>, 'Tarjetas':<CardsView {...props}/>, 'Reportes':<Reports {...props}/>, 'Usuarios y permisos':<Permissions {...props}/>, 'Integraciones':<Integrations {...props}/>, 'Configuración':<SettingsView {...props}/>}
+  const views={'Vista general':<Overview {...props}/>, 'Cuentas virtuales':<VirtualAccounts {...props}/>, 'Usuarios finales':<UsersView {...props}/>, 'Movimientos':<MovementsView {...props}/>, 'Transferencias':<Transfers {...props}/>, 'Retiros y pagos':<Withdrawals {...props}/>, 'Conciliación':<Reconciliation {...props}/>, 'Facturación':<Billing {...props}/>, 'Rendición de gastos':<ExpenseReports {...props}/>, 'Tarjetas':<CardsView {...props}/>, 'Reportes':<Reports {...props}/>, 'Usuarios y permisos':<Permissions {...props}/>, 'Integraciones':<Integrations {...props}/>, 'Configuración':<SettingsView {...props}/>}
   return <div className="app"><Sidebar active={active} setActive={setActive} mobile={mobile} setMobile={setMobile}/><div className="main"><Header setMobile={setMobile} onLanding={()=>navigate('/')}/><main>{views[active]}</main></div>{modal&&<Modal type={modal} onClose={()=>setModal(null)}/>}</div>
 }
 function App() {
   const navigate = useNavigate()
   return <Routes>
-    <Route path="/" element={<Landing onDemo={()=>navigate('/smb')} onPersonas={()=>navigate('/personas')} />} />
+    <Route path="/" element={<Landing onDemo={()=>navigate('/smb')} onPersonas={()=>navigate('/personas')} onPersonasWeb={()=>navigate('/personas-web')} />} />
     <Route path="/smb" element={<SMBDemo />} />
     <Route path="/personas" element={<Personas onBack={()=>navigate('/')} />} />
+    <Route path="/personas-web" element={<PersonasBusiness onBack={()=>navigate('/')} />} />
   </Routes>
 }
 export default App
