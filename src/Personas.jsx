@@ -1,13 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import yol1Mark from './assets/yol1-mark.svg'
 import './personas.css'
 import {
-  ArrowDownLeft, ArrowRight, ArrowUpRight, Bell, Check, ChevronRight,
+  ArrowDownLeft, ArrowLeft, ArrowRight, Bell, Check, ChevronRight,
   Copy, CreditCard, Eye, EyeOff, Gamepad2, Globe2, GraduationCap,
   Home, Plus, QrCode, Repeat2, Send, Settings, Shield, ShoppingBag,
   Smartphone, Star, TrendingUp, User, Wallet, X, Zap,
   ArrowLeftRight, Coffee, ChevronDown
 } from 'lucide-react'
+
+/* ── Hooks ──────────────────────────────────────────────────────────────── */
+function useCountUp(target, duration = 1000) {
+  const [val, setVal] = useState(0)
+  useEffect(() => {
+    const start = Date.now()
+    const tick = () => {
+      const p = Math.min((Date.now() - start) / duration, 1)
+      const ease = 1 - Math.pow(1 - p, 3)
+      setVal(Math.round(target * ease))
+      if (p < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }, [target])
+  return val
+}
 
 /* ── Data ───────────────────────────────────────────────────────────────── */
 const fmtCLP = v => `$${Number(v).toLocaleString('es-CL')}`
@@ -49,16 +65,46 @@ const TXS = [
 ]
 
 const COUNTRIES = [
-  { code: 'PE', name: 'Perú',      currency: 'PEN', flag: '🇵🇪', rate: 0.00403 },
-  { code: 'CO', name: 'Colombia',  currency: 'COP', flag: '🇨🇴', rate: 3.12   },
-  { code: 'US', name: 'EE.UU.',    currency: 'USD', flag: '🇺🇸', rate: 0.00105 },
-  { code: 'MX', name: 'México',    currency: 'MXN', flag: '🇲🇽', rate: 0.0182  },
-  { code: 'AR', name: 'Argentina', currency: 'ARS', flag: '🇦🇷', rate: 1.08   },
-  { code: 'BR', name: 'Brasil',    currency: 'BRL', flag: '🇧🇷', rate: 0.00598 },
+  { code: 'MX', name: 'México',          currency: 'MXN', flag: '🇲🇽', rate: 0.01820  },
+  { code: 'GT', name: 'Guatemala',       currency: 'GTQ', flag: '🇬🇹', rate: 0.00810  },
+  { code: 'HN', name: 'Honduras',        currency: 'HNL', flag: '🇭🇳', rate: 0.02596  },
+  { code: 'SV', name: 'El Salvador',     currency: 'USD', flag: '🇸🇻', rate: 0.00105  },
+  { code: 'NI', name: 'Nicaragua',       currency: 'NIO', flag: '🇳🇮', rate: 0.03862  },
+  { code: 'CR', name: 'Costa Rica',      currency: 'CRC', flag: '🇨🇷', rate: 0.54600  },
+  { code: 'PA', name: 'Panamá',          currency: 'USD', flag: '🇵🇦', rate: 0.00105  },
+  { code: 'CU', name: 'Cuba',            currency: 'CUP', flag: '🇨🇺', rate: 0.02835  },
+  { code: 'DO', name: 'Rep. Dominicana', currency: 'DOP', flag: '🇩🇴', rate: 0.06384  },
+  { code: 'HT', name: 'Haití',           currency: 'HTG', flag: '🇭🇹', rate: 0.14022  },
+  { code: 'CO', name: 'Colombia',        currency: 'COP', flag: '🇨🇴', rate: 3.12000  },
+  { code: 'VE', name: 'Venezuela',       currency: 'VES', flag: '🇻🇪', rate: 0.03812  },
+  { code: 'EC', name: 'Ecuador',         currency: 'USD', flag: '🇪🇨', rate: 0.00105  },
+  { code: 'PE', name: 'Perú',            currency: 'PEN', flag: '🇵🇪', rate: 0.00403  },
+  { code: 'BO', name: 'Bolivia',         currency: 'BOB', flag: '🇧🇴', rate: 0.00727  },
+  { code: 'BR', name: 'Brasil',          currency: 'BRL', flag: '🇧🇷', rate: 0.00598  },
+  { code: 'PY', name: 'Paraguay',        currency: 'PYG', flag: '🇵🇾', rate: 7.83000  },
+  { code: 'UY', name: 'Uruguay',         currency: 'UYU', flag: '🇺🇾', rate: 0.04462  },
+  { code: 'AR', name: 'Argentina',       currency: 'ARS', flag: '🇦🇷', rate: 1.08000  },
+]
+
+const WEEKLY_SPEND = [
+  { day: 'L', amount: 18400, max: false },
+  { day: 'M', amount: 6990,  max: false },
+  { day: 'X', amount: 3200,  max: false },
+  { day: 'J', amount: 28900, max: false },
+  { day: 'V', amount: 31790, max: true  },
+  { day: 'S', amount: 7800,  max: false },
+  { day: 'D', amount: 4200,  max: false },
+]
+
+const CATEGORIES = [
+  { name: 'Comida',          amount: 38390, color: '#ff6b6b', pct: 38 },
+  { name: 'Transporte',      amount: 20260, color: '#4ecdc4', pct: 20 },
+  { name: 'Entretenimiento', amount: 35890, color: '#a78bfa', pct: 35 },
+  { name: 'Otros',           amount: 6740,  color: '#fbbf24', pct: 7  },
 ]
 
 /* ── Shared components ──────────────────────────────────────────────────── */
-function CardVisual({ card, mini = false }) {
+function CardVisual({ card, mini = false, frozen = false }) {
   const [hidden, setHidden] = useState(false)
   const bal = card.currency === 'CLP'
     ? fmtCLP(card.balance)
@@ -74,11 +120,20 @@ function CardVisual({ card, mini = false }) {
           </button>
         )}
       </div>
+      <div className="cv-chip">
+        <div className="cv-chip-inner" />
+      </div>
       <div className="cv-balance">{hidden ? '•••••' : bal}</div>
       <div className="cv-bottom">
         <span className="cv-name">{card.name}</span>
         <span className="cv-num">•••• {card.last4}</span>
       </div>
+      {frozen && (
+        <div className="cv-frozen">
+          <Shield size={20} />
+          <span>Congelada</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -120,10 +175,79 @@ function TabBar({ active, set }) {
   )
 }
 
+/* ── Card carousel with drag support ────────────────────────────────────── */
+function CardCarousel({ cardIdx, setCardIdx }) {
+  const trackRef = useRef(null)
+  const drag = useRef(null)
+  const dragging = useRef(false)
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    const item = track.children[cardIdx]
+    if (item) track.scrollTo({ left: item.offsetLeft, behavior: 'smooth' })
+  }, [cardIdx])
+
+  const onScroll = () => {
+    if (dragging.current) return
+    const track = trackRef.current
+    if (!track || !track.children[0]) return
+    const itemW = track.children[0].offsetWidth + 10
+    setCardIdx(Math.round(track.scrollLeft / itemW))
+  }
+
+  const startDrag = x => { drag.current = { x, scroll: trackRef.current?.scrollLeft ?? 0 } }
+  const moveDrag = x => {
+    if (!drag.current || !trackRef.current) return
+    dragging.current = true
+    trackRef.current.scrollLeft = drag.current.scroll - (x - drag.current.x)
+  }
+  const endDrag = () => {
+    if (!dragging.current) { drag.current = null; return }
+    const track = trackRef.current
+    if (track && track.children[0]) {
+      const itemW = track.children[0].offsetWidth + 10
+      setCardIdx(Math.round(track.scrollLeft / itemW))
+    }
+    drag.current = null
+    setTimeout(() => { dragging.current = false }, 50)
+  }
+
+  return (
+    <div className="cards-carousel">
+      <div
+        ref={trackRef}
+        className="carousel-track"
+        onScroll={onScroll}
+        onMouseDown={e => { startDrag(e.clientX); e.preventDefault() }}
+        onMouseMove={e => { if (drag.current) moveDrag(e.clientX) }}
+        onMouseUp={endDrag}
+        onMouseLeave={endDrag}
+        style={{ cursor: drag.current ? 'grabbing' : 'grab' }}
+      >
+        {CARDS.map((card, i) => (
+          <div
+            key={card.id}
+            className={`carousel-item ${i === cardIdx ? 'sel' : ''}`}
+            onClick={() => { if (!dragging.current) setCardIdx(i) }}
+          >
+            <CardVisual card={card} mini />
+          </div>
+        ))}
+      </div>
+      <div className="carousel-dots">
+        {CARDS.map((_, i) => <span key={i} className={i === cardIdx ? 'on' : ''} onClick={() => setCardIdx(i)} />)}
+      </div>
+    </div>
+  )
+}
+
 /* ── Views ──────────────────────────────────────────────────────────────── */
 function ViewInicio({ nav }) {
   const [cardIdx, setCardIdx] = useState(0)
+  const [notifOpen, setNotifOpen] = useState(false)
   const totalCLP = CARDS.filter(c => c.currency === 'CLP').reduce((s, c) => s + c.balance, 0)
+  const animatedBalance = useCountUp(totalCLP)
 
   return (
     <div className="p-view">
@@ -133,13 +257,41 @@ function ViewInicio({ nav }) {
           <p className="greeting">Buenos días</p>
           <h2 className="username">Valentina 👋</h2>
         </div>
-        <button className="notif-btn"><Bell size={20} /><i /></button>
+        <button className="notif-btn" onClick={() => setNotifOpen(o => !o)}>
+          <Bell size={20} /><i />
+        </button>
       </div>
+
+      {/* Notification panel */}
+      {notifOpen && (
+        <div className="notif-panel">
+          <div className="notif-head">
+            <b>Notificaciones</b>
+            <button onClick={() => setNotifOpen(false)}><X size={16} /></button>
+          </div>
+          {[
+            { icon: ArrowDownLeft, title: 'Abono recibido',  desc: '+$45.000 · Beca USACH',   time: 'Hace 2h', color: '#22c55e' },
+            { icon: Send,          title: 'Remesa enviada',  desc: 'PEN 484 · Carlos Mendoza', time: 'Hace 3h', color: '#3b82f6' },
+            { icon: Zap,           title: 'Oferta especial', desc: '2x puntos en compras hoy', time: 'Hace 5h', color: '#f59e0b' },
+          ].map((n, i) => (
+            <div key={i} className="notif-item">
+              <div className="notif-icon" style={{ background: n.color + '20', color: n.color }}>
+                <n.icon size={15} />
+              </div>
+              <div className="notif-info">
+                <b>{n.title}</b>
+                <small>{n.desc}</small>
+              </div>
+              <span className="notif-time">{n.time}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Balance */}
       <div className="balance-block">
         <span>Balance total</span>
-        <h1>{fmtCLP(totalCLP)}</h1>
+        <h1>{fmtCLP(animatedBalance)}</h1>
         <small>{CARDS.length} tarjetas activas · CLP</small>
       </div>
 
@@ -160,21 +312,41 @@ function ViewInicio({ nav }) {
       </div>
 
       {/* Cards mini carousel */}
-      <div className="cards-carousel">
-        <div className="carousel-track">
-          {CARDS.map((card, i) => (
-            <div
-              key={card.id}
-              className={`carousel-item ${i === cardIdx ? 'sel' : ''}`}
-              onClick={() => setCardIdx(i)}
-            >
-              <CardVisual card={card} mini />
+      <CardCarousel cardIdx={cardIdx} setCardIdx={setCardIdx} />
+
+      {/* Weekly spend chart */}
+      <div className="spend-chart-card">
+        <div className="scc-head">
+          <span>Gastos esta semana</span>
+          <b>$101.280</b>
+        </div>
+        <div className="scc-bars">
+          {WEEKLY_SPEND.map(({ day, amount, max }) => {
+            const maxAmt = Math.max(...WEEKLY_SPEND.map(x => x.amount))
+            const pct = (amount / maxAmt) * 100
+            return (
+              <div key={day} className="scc-bar-wrap">
+                <div className="scc-bar" style={{ height: `${pct}%` }} data-active={max || undefined} />
+                <span>{day}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Category breakdown */}
+      <div className="spend-categories">
+        <div className="list-head" style={{ marginBottom: 10 }}><b>Por categoría</b></div>
+        {CATEGORIES.map(({ name, amount, color, pct }) => (
+          <div key={name} className="cat-row">
+            <div className="cat-dot" style={{ background: color }} />
+            <span className="cat-name">{name}</span>
+            <div className="cat-bar-bg">
+              <div className="cat-bar" style={{ width: `${pct}%`, background: color }} />
             </div>
-          ))}
-        </div>
-        <div className="carousel-dots">
-          {CARDS.map((_, i) => <span key={i} className={i === cardIdx ? 'on' : ''} />)}
-        </div>
+            <span className="cat-amt">{fmtCLP(amount)}</span>
+          </div>
+        ))}
       </div>
 
       {/* Insight strip */}
@@ -191,12 +363,40 @@ function ViewInicio({ nav }) {
       <div className="tx-list">
         {TXS.slice(0, 5).map(tx => <TxRow key={tx.id} tx={tx} />)}
       </div>
+
+      {/* Goals / Savings */}
+      <div className="list-head" style={{ marginTop: 20 }}>
+        <b>Mis metas</b>
+        <button>Ver todas <ChevronRight size={13} /></button>
+      </div>
+      <div className="goals-list">
+        {[
+          { name: 'Viaje a Colombia', target: 500000, current: 182000, emoji: '✈️', color: '#3b82f6' },
+          { name: 'Nuevo celular',    target: 250000, current: 87500,  emoji: '📱', color: '#a78bfa' },
+        ].map(({ name, target, current, emoji, color }) => {
+          const pct = Math.round((current / target) * 100)
+          return (
+            <div key={name} className="goal-card">
+              <span className="goal-emoji">{emoji}</span>
+              <div className="goal-info">
+                <div className="goal-top"><b>{name}</b><span>{pct}%</span></div>
+                <div className="goal-bar"><div style={{ width: `${pct}%`, background: color }} /></div>
+                <div className="goal-nums">
+                  <small>{fmtCLP(current)}</small>
+                  <small>{fmtCLP(target)}</small>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
 
 function ViewTarjetas() {
   const [open, setOpen] = useState(null)
+  const [frozen, setFrozen] = useState(new Set())
   const card = open !== null ? CARDS[open] : null
 
   return (
@@ -211,11 +411,23 @@ function ViewTarjetas() {
           const { Icon } = c
           return (
             <div key={c.id} className="card-entry" onClick={() => setOpen(i)}>
-              <CardVisual card={c} />
+              <CardVisual card={c} frozen={frozen.has(c.id)} />
               <div className="ce-meta">
                 <div className="ce-source"><Icon size={12} /> {c.source}</div>
                 <div className="ce-actions">
-                  <button><Shield size={13} /> Congelar</button>
+                  <button
+                    onClick={e => {
+                      e.stopPropagation()
+                      setFrozen(prev => {
+                        const n = new Set(prev)
+                        n.has(c.id) ? n.delete(c.id) : n.add(c.id)
+                        return n
+                      })
+                    }}
+                    className={frozen.has(c.id) ? 'active' : ''}
+                  >
+                    <Shield size={13} /> {frozen.has(c.id) ? 'Descongelar' : 'Congelar'}
+                  </button>
                   <button><Settings size={13} /> Límites</button>
                   <button><Copy size={13} /> Datos</button>
                 </div>
@@ -233,9 +445,10 @@ function ViewTarjetas() {
               <b>Detalle tarjeta</b>
               <button onClick={() => setOpen(null)}><X size={18} /></button>
             </div>
-            <CardVisual card={card} />
+            <CardVisual card={card} frozen={frozen.has(card.id)} />
             <div className="drawer-grid">
-              {[['Tipo', card.type], ['Origen', card.source], ['Estado', 'Activa'],
+              {[['Tipo', card.type], ['Origen', card.source],
+                ['Estado', frozen.has(card.id) ? 'Congelada' : 'Activa'],
                 ['Saldo', card.currency === 'CLP' ? fmtCLP(card.balance) : `USD ${card.balance.toFixed(2)}`]
               ].map(([k, v]) => (
                 <div key={k} className="drawer-field"><small>{k}</small><b>{v}</b></div>
@@ -252,8 +465,15 @@ function ViewTarjetas() {
   )
 }
 
+const CRYPTO = [
+  { coin: 'BTC',  symbol: '₿', network: 'Bitcoin',           addr: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kf',        color: '#f7931a' },
+  { coin: 'ETH',  symbol: 'Ξ', network: 'Ethereum (ERC-20)', addr: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', color: '#627eea' },
+  { coin: 'USDT', symbol: '₮', network: 'Tron (TRC-20)',     addr: 'TAzpMZUGFDpJjGb5NfMgN5eKbVsz3PiQgh',        color: '#26a17b' },
+]
+
 function ViewMover() {
   const [tab, setTab] = useState('enviar')
+  const [recibirMode, setRecibirMode] = useState('banco')
   const [sent, setSent] = useState(false)
 
   if (sent) return (
@@ -311,13 +531,37 @@ function ViewMover() {
 
       {tab === 'recibir' && (
         <div className="recibir-block">
-          <div className="qr-box"><QrCode size={88} /><span>valentina.yol1</span></div>
-          <div className="account-grid">
-            {[['Banco', 'Yol1 Personas'], ['Tipo', 'Cuenta vista'], ['RUT', '18.921.344-6'], ['N° cuenta', '000-182-0021']].map(([k, v]) => (
-              <div key={k} className="acc-field"><small>{k}</small><b>{v}</b></div>
-            ))}
+          <div className="pill-tabs-sm">
+            <button className={recibirMode === 'banco' ? 'on' : ''} onClick={() => setRecibirMode('banco')}>Cuenta bancaria</button>
+            <button className={recibirMode === 'cripto' ? 'on' : ''} onClick={() => setRecibirMode('cripto')}>Cripto</button>
           </div>
-          <button className="btn-secondary"><Copy size={14} /> Copiar datos</button>
+
+          {recibirMode === 'banco' && <>
+            <div className="qr-box"><QrCode size={88} /><span>valentina.yol1</span></div>
+            <div className="account-grid">
+              {[['Banco', 'Yol1 Personas'], ['Tipo', 'Cuenta vista'], ['RUT', '18.921.344-6'], ['N° cuenta', '000-182-0021']].map(([k, v]) => (
+                <div key={k} className="acc-field"><small>{k}</small><b>{v}</b></div>
+              ))}
+            </div>
+            <button className="btn-secondary"><Copy size={14} /> Copiar datos</button>
+          </>}
+
+          {recibirMode === 'cripto' && (
+            <div className="crypto-block">
+              {CRYPTO.map(({ coin, symbol, network, addr, color }) => (
+                <div key={coin} className="crypto-card">
+                  <div className="crypto-coin" style={{ background: color }}>{symbol}</div>
+                  <div className="crypto-info">
+                    <b>{coin}</b>
+                    <small>{network}</small>
+                    <code>{addr}</code>
+                  </div>
+                  <button className="crypto-copy"><Copy size={13} /></button>
+                </div>
+              ))}
+              <p className="crypto-note">Deposita solo la criptomoneda correspondiente a cada red. Los fondos se acreditan en CLP al tipo de cambio vigente.</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -335,12 +579,20 @@ function ViewMover() {
 }
 
 function ViewRemesas() {
-  const [dest, setDest] = useState(COUNTRIES[0])
+  const [dest, setDest] = useState(COUNTRIES[13]) // Perú default
   const [amount, setAmount] = useState('120000')
   const [sent, setSent] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [search, setSearch] = useState('')
+
   const received = amount
     ? (Number(amount) * dest.rate).toLocaleString('en-US', { maximumFractionDigits: 2 })
     : '0'
+
+  const filtered = COUNTRIES.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.currency.toLowerCase().includes(search.toLowerCase())
+  )
 
   if (sent) return (
     <div className="p-view center-view">
@@ -349,11 +601,11 @@ function ViewRemesas() {
         <h2>¡Remesa enviada!</h2>
         <p>Tu envío a <b>{dest.name}</b> está en camino</p>
         <div className="success-amount">{dest.flag} {dest.currency} {received}</div>
-        <small>Llegada estimada: hoy en 1–2 horas</small>
+        <small className="instant-badge">⚡ Llegada instantánea</small>
         <div className="track-row">
-          {['Enviado', 'Procesando', 'En camino', 'Entregado'].map((s, i) => (
-            <div key={s} className={`track-step ${i < 2 ? 'done' : i === 2 ? 'cur' : ''}`}>
-              <div className="ts-dot">{i < 2 ? <Check size={10} /> : null}</div>
+          {['Enviado', 'Procesando', 'Entregado'].map((s, i) => (
+            <div key={s} className={`track-step ${i < 3 ? 'done' : ''}`}>
+              <div className="ts-dot">{<Check size={10} />}</div>
               <small>{s}</small>
             </div>
           ))}
@@ -370,51 +622,71 @@ function ViewRemesas() {
         <span className="view-tag">Internacional</span>
       </div>
 
-      <div className="country-pills">
-        {COUNTRIES.map(c => (
-          <button
-            key={c.code}
-            className={`cpill ${dest.code === c.code ? 'on' : ''}`}
-            onClick={() => setDest(c)}
-          >
-            {c.flag} {c.name}
-          </button>
-        ))}
-      </div>
+      {/* Swap UI */}
+      <div className="swap-card">
+        {/* From box */}
+        <div className="swap-box">
+          <span className="swap-label">Envías</span>
+          <div className="swap-row">
+            <div className="swap-token fixed">
+              <span className="swap-flag">🇨🇱</span>
+              <span className="swap-currency">CLP</span>
+            </div>
+            <input
+              className="swap-input"
+              type="number"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              placeholder="0"
+            />
+          </div>
+          <span className="swap-sub">Chile · Yol1 Classic ···· 4182</span>
+        </div>
 
-      <div className="calc-card">
-        <div className="calc-row">
-          <label>Envías desde Chile</label>
-          <div className="calc-input">
-            <span>🇨🇱 CLP</span>
-            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} />
+        {/* Divider + flip */}
+        <div className="swap-divider">
+          <div className="swap-flip-btn">
+            <Repeat2 size={16} />
+          </div>
+          <div className="swap-rate-line">
+            <span>1 CLP = {dest.currency} {dest.rate.toFixed(5)}</span>
+            <span className="rate-tag">Mejor que el banco</span>
           </div>
         </div>
-        <div className="calc-divider">
-          <Repeat2 size={15} />
-          <span>1 CLP = {dest.currency} {dest.rate.toFixed(5)}</span>
-          <span className="rate-tag">Mejor que el banco</span>
-        </div>
-        <div className="calc-row">
-          <label>Reciben en {dest.name}</label>
-          <div className="calc-input ro">
-            <span>{dest.flag} {dest.currency}</span>
-            <input type="text" value={received} readOnly />
+
+        {/* To box */}
+        <div className="swap-box">
+          <span className="swap-label">Reciben</span>
+          <div className="swap-row">
+            <button className="swap-token selectable" onClick={() => { setPickerOpen(true); setSearch('') }}>
+              <span className="swap-flag">{dest.flag}</span>
+              <span className="swap-currency">{dest.currency}</span>
+              <ChevronDown size={14} />
+            </button>
+            <input className="swap-input ro" type="text" value={received} readOnly />
           </div>
+          <span className="swap-sub">{dest.name}</span>
         </div>
       </div>
 
-      <div className="costs-list">
-        <div><span>Comisión Yol1</span><b className="green-txt">$0</b></div>
-        <div><span>Tipo de cambio</span><b>Interbancario +1,2%</b></div>
-        <div><span>Llegada estimada</span><b>Hoy, 1–2 horas</b></div>
+      {/* Info row */}
+      <div className="swap-info-row">
+        <div className="sinfo-item"><span>Comisión</span><b className="green-txt">$0</b></div>
+        <div className="sinfo-sep" />
+        <div className="sinfo-item"><span>Tasa</span><b>Interbancaria</b></div>
+        <div className="sinfo-sep" />
+        <div className="sinfo-item"><span>Llegada</span><b className="instant-txt">⚡ Instantánea</b></div>
       </div>
 
+      {/* Recipient */}
       <div className="recipient-block">
         <span className="block-label">Destinatario</span>
         <div className="recipient-row">
           <div className="rc-av flag">{dest.flag}</div>
-          <div className="ri"><b>Carlos Mendoza</b><small>BCP · ···· 4108 · {dest.name}</small></div>
+          <div className="ri">
+            <b>Carlos Mendoza</b>
+            <small>BCP · ···· 4108 · {dest.name}</small>
+          </div>
           <ChevronRight size={15} />
         </div>
       </div>
@@ -436,6 +708,45 @@ function ViewRemesas() {
           <span className="tx-amt neg">-$95.000</span>
         </div>
       </div>
+
+      {/* Country picker sheet */}
+      {pickerOpen && (
+        <div className="drawer-overlay" onClick={() => setPickerOpen(false)}>
+          <div className="drawer country-picker-drawer" onClick={e => e.stopPropagation()}>
+            <div className="drawer-handle" />
+            <div className="picker-head">
+              <b>Selecciona país</b>
+              <button onClick={() => setPickerOpen(false)}><X size={18} /></button>
+            </div>
+            <div className="picker-search-wrap">
+              <input
+                className="picker-search"
+                placeholder="Buscar país o moneda..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="picker-list">
+              {filtered.map(c => (
+                <button
+                  key={c.code}
+                  className={`picker-item ${dest.code === c.code ? 'on' : ''}`}
+                  onClick={() => { setDest(c); setPickerOpen(false) }}
+                >
+                  <span className="picker-flag">{c.flag}</span>
+                  <div className="picker-info">
+                    <b>{c.name}</b>
+                    <small>{c.currency}</small>
+                  </div>
+                  <span className="picker-rate">1 CLP = {c.rate >= 1 ? c.rate.toFixed(2) : c.rate.toFixed(5)} {c.currency}</span>
+                  {dest.code === c.code && <Check size={15} className="picker-check" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -476,16 +787,31 @@ function ViewPerfil({ onBack }) {
   )
 }
 
+function ViewHistorial({ nav }) {
+  return (
+    <div className="p-view">
+      <div className="view-bar">
+        <button className="back-icon" onClick={() => nav('inicio')}><ArrowLeft size={20} /></button>
+        <h2>Historial</h2>
+      </div>
+      <div className="tx-list">
+        {TXS.map(tx => <TxRow key={tx.id} tx={tx} />)}
+      </div>
+    </div>
+  )
+}
+
 /* ── Root ───────────────────────────────────────────────────────────────── */
 export default function Personas({ onBack }) {
   const [tab, setTab] = useState('inicio')
 
   const views = {
-    inicio:   <ViewInicio  nav={setTab} />,
-    tarjetas: <ViewTarjetas />,
-    mover:    <ViewMover />,
-    remesas:  <ViewRemesas />,
-    perfil:   <ViewPerfil onBack={onBack} />,
+    inicio:    <ViewInicio    nav={setTab} />,
+    tarjetas:  <ViewTarjetas />,
+    mover:     <ViewMover />,
+    remesas:   <ViewRemesas />,
+    perfil:    <ViewPerfil onBack={onBack} />,
+    historial: <ViewHistorial nav={setTab} />,
   }
 
   return (
@@ -493,7 +819,7 @@ export default function Personas({ onBack }) {
       <div className="personas-phone">
         <div className="personas-topbar">
           <div className="pt-brand">
-            <img src={yol1Mark} alt=""/>
+            <img src={yol1Mark} alt="" />
             <span>Yol1 <b>Personas</b></span>
             <span className="pt-tag">Demo</span>
           </div>

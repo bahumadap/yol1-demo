@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import yol1Logo from './assets/yol1-logo.svg'
 import yol1Mark from './assets/yol1-mark.svg'
 import Landing from './Landing'
@@ -221,13 +222,19 @@ function SettingsView(){const items=[[Building2,'Datos de empresa','Razón socia
 
 function Sidebar({active,setActive,mobile,setMobile}) { return <aside className={`sidebar ${mobile?'mobile-open':''}`}><div className="brand"><img src={yol1Logo} alt="Yol1 Business"/><button className="mobile-close" onClick={()=>setMobile(false)}><X/></button></div><div className="company-switch"><div className="company-icon">AP</div><div><b>ArenaPlay Demo SpA</b><span>Cuenta empresa · CLP</span></div><ChevronDown size={15}/></div><nav><span className="nav-label">OPERACIÓN</span>{nav.slice(0,10).map(([name,Icon])=><button key={name} className={active===name?'active':''} onClick={()=>{setActive(name);setMobile(false)}}><Icon size={17}/><span>{name}</span>{name==='Retiros y pagos'&&<em>4</em>}{name==='Conciliación'&&<em>12</em>}</button>)}<span className="nav-label">ADMINISTRACIÓN</span>{nav.slice(10).map(([name,Icon])=><button key={name} className={active===name?'active':''} onClick={()=>{setActive(name);setMobile(false)}}><Icon size={17}/><span>{name}</span></button>)}</nav><div className="sidebar-footer"><div className="demo-tag"><Sparkles size={15}/><span><b>Demo conceptual</b><small>No procesa datos reales</small></span></div><div className="profile"><Avatar name="Benja" small/><div><b>Benja</b><span>Administrador</span></div><MoreHorizontal size={17}/></div></div></aside> }
 function Header({setMobile,onLanding}) { return <header><button className="menu-btn" onClick={()=>setMobile(true)}><Menu/></button><div className="global-search"><Search size={17}/><span>Buscar transacciones o iniciar una acción</span><kbd>⌘ K</kbd></div><div className="header-right"><button className="demo-back" onClick={onLanding}>Yol1 Landing</button><div className="system-ok"><span/> Sistemas operativos</div><button className="icon-btn"><Bell size={18}/><i/></button><Avatar name="Benja" small/></div></header> }
-function App() {
+function SMBDemo() {
+  const navigate = useNavigate()
   const [active,setActive]=useState('Vista general'), [modal,setModal]=useState(null), [mobile,setMobile]=useState(false)
-  const [mode,setMode]=useState('landing')
   const props={open:setModal,navigate:setActive}
   const views={'Vista general':<Overview {...props}/>, 'Cuentas virtuales':<VirtualAccounts {...props}/>, 'Usuarios finales':<UsersView {...props}/>, 'Movimientos':<MovementsView {...props}/>, 'Transferencias':<Transfers {...props}/>, 'Retiros y pagos':<Withdrawals {...props}/>, 'Conciliación':<Reconciliation {...props}/>, 'Facturación':<Billing {...props}/>, 'Tarjetas':<CardsView {...props}/>, 'Reportes':<Reports {...props}/>, 'Usuarios y permisos':<Permissions {...props}/>, 'Integraciones':<Integrations {...props}/>, 'Configuración':<SettingsView {...props}/>}
-  if (mode === 'landing') return <Landing onDemo={()=>setMode('demo')} onPersonas={()=>setMode('personas')} />
-  if (mode === 'personas') return <Personas onBack={()=>setMode('landing')} />
-  return <div className="app"><Sidebar active={active} setActive={setActive} mobile={mobile} setMobile={setMobile}/><div className="main"><Header setMobile={setMobile} onLanding={()=>setMode('landing')}/><main>{views[active]}</main></div>{modal&&<Modal type={modal} onClose={()=>setModal(null)}/>}</div>
+  return <div className="app"><Sidebar active={active} setActive={setActive} mobile={mobile} setMobile={setMobile}/><div className="main"><Header setMobile={setMobile} onLanding={()=>navigate('/')}/><main>{views[active]}</main></div>{modal&&<Modal type={modal} onClose={()=>setModal(null)}/>}</div>
+}
+function App() {
+  const navigate = useNavigate()
+  return <Routes>
+    <Route path="/" element={<Landing onDemo={()=>navigate('/smb')} onPersonas={()=>navigate('/personas')} />} />
+    <Route path="/smb" element={<SMBDemo />} />
+    <Route path="/personas" element={<Personas onBack={()=>navigate('/')} />} />
+  </Routes>
 }
 export default App
